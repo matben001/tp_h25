@@ -1,0 +1,56 @@
+language: java
+jdk:
+  - openjdk11  # Adjust to the Java version you require
+
+env:
+  global:
+    - GRADLE_USER_HOME=$TRAVIS_BUILD_DIR/.gradle
+    - FETCH_DEPTH=--depth=1
+
+before_install:
+  - echo "Setting up environment"
+  - mkdir -p $GRADLE_USER_HOME
+
+cache:
+  directories:
+    - $GRADLE_USER_HOME/caches
+    - $GRADLE_USER_HOME/wrapper
+
+jobs:
+  include:
+    - stage: "Cache Dependencies"
+      if: $TRAVIS_TAG == "" && ( $TRAVIS_PULL_REQUEST != "false" || $TRAVIS_BRANCH == $TRAVIS_DEFAULT_BRANCH || $TRAVIS_BRANCH =~ "branch-.*" || $TRAVIS_BUILD_SOURCE == "api" )
+      script:
+        - bash .travis/travis-cache-dependencies.sh
+
+    - stage: "Build"
+      if: $TRAVIS_TAG == "" && ( $TRAVIS_PULL_REQUEST != "false" || $TRAVIS_BRANCH == $TRAVIS_DEFAULT_BRANCH || $TRAVIS_BRANCH =~ "branch-.*" || $TRAVIS_BUILD_SOURCE == "api" )
+      script:
+        - bash .travis/travis-build.sh
+
+    - stage: "JUnit"
+      if: $TRAVIS_TAG == "" && ( $TRAVIS_PULL_REQUEST != "false" || $TRAVIS_BRANCH == $TRAVIS_DEFAULT_BRANCH || $TRAVIS_BRANCH =~ "branch-.*" || $TRAVIS_BUILD_SOURCE == "api" )
+      script:
+        - bash .travis/travis-junit.sh
+
+    - stage: "SonarQube Analysis"
+      if: $TRAVIS_PULL_REQUEST == "false" && $TRAVIS_BRANCH != "public_master" && $TRAVIS_BRANCH =~ ".*"
+      env:
+        - SONAR_HOST_URL=https://next.sonarqube.com/sonarqube
+        - SONAR_TOKEN=$SONAR_TOKEN  # Ensure this is set in your Travis settings
+      script:
+        - bash .travis/travis-sq-analysis.sh
+
+stages:
+  - name: "Cache Dependencies"
+  - name: "Build"
+  - name: "JUnit"
+  - name: "SonarQube Analysis"
+
+# Notifications (optional)
+notifications:
+  email:
+    recipients:
+      - your-email@example.com
+    on_success: never  # Don't notify on success
+    on_failure: always  # Notify on failure
