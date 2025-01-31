@@ -13,6 +13,9 @@ env:
   CIRRUS_CLONE_DEPTH: 0
   GRADLE_USER_HOME: ${{ github.workspace }}/.gradle
   FETCH_DEPTH: --depth=1
+  BUILD_NUMBER: 1
+  
+
 
 jobs:
 
