@@ -24,6 +24,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class LdapUserMappingTest {
@@ -75,6 +76,26 @@ public class LdapUserMappingTest {
     assertThatThrownBy(() -> new LdapUserMapping(config, "ldap"))
       .isInstanceOf(LdapException.class)
       .hasMessage("The property 'ldap.user.baseDn' property is empty while it is mandatory.");
+  }
+  @Test
+  public void testIsEmailPolymtl() {
+    //throw new UnsupportedOperationException("Not implemented");
+    LdapUserDetails userDetails = new LdapUserDetails();
+    
+    userDetails.setEmail("test@polymtl.ca");
+    assertTrue(userDetails.isEmailPolymtl());
+    
+    userDetails.setEmail("user@example.com");
+    assertFalse(userDetails.isEmailPolymtl());
+    
+    userDetails.setEmail("TEST@POLYMTL.CA");
+    assertTrue(userDetails.isEmailPolymtl());
+    
+    userDetails.setEmail(null);
+    assertFalse(userDetails.isEmailPolymtl());
+    
+    userDetails.setEmail("polymtl@edu.ca");
+    assertFalse(userDetails.isEmailPolymtl());
   }
 
 }

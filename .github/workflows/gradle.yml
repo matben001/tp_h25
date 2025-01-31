@@ -57,23 +57,3 @@ jobs:
           name: junit-results
           path: '**/build/test-results/**/*.xml'
 
-  sonar_analysis:
-    needs: [build, junit]
-    runs-on: ubuntu-latest
-    container:
-      image: docker.io/library/gradle:latest
-    env:
-      SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Restore Gradle Cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.gradle/caches
-          key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle*.properties') }}
-      - name: Run SonarQube Analysis
-        run: .cirrus/cirrus-sq-analysis.sh
