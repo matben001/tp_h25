@@ -23,7 +23,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: docker.io/library/gradle:latest
+      image: docker.io/library/gradle:7.5.1-jdk17
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -41,7 +41,7 @@ jobs:
   junit:
     runs-on: ubuntu-latest
     container:
-      image: docker.io/library/gradle:latest
+      image: docker.io/library/gradle:7.5.1-jdk17
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
