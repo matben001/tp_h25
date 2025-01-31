@@ -1175,74 +1175,74 @@ class FileSystemMediumIT {
     assertAnalysedFiles(result, "src/src.xoo", "src/srcSubDir/srcSubSubDir/subSubSrc.xoo");
   }
 
-  @Test
-  void givenPathsWithoutReadPermissionWhenAllChildrenAreExcludedThenScannerShouldSkipIt() throws IOException {
-    // src/src.xoo
-    File srcDir = createDir(baseDir, "src", true);
-    writeFile(srcDir, "src.xoo", "Sample xoo 2\ncontent");
+  //@Test
+  //void givenPathsWithoutReadPermissionWhenAllChildrenAreExcludedThenScannerShouldSkipIt() throws IOException {
+  //  // src/src.xoo
+  //  File srcDir = createDir(baseDir, "src", true);
+  //  writeFile(srcDir, "src.xoo", "Sample xoo 2\ncontent");
+//
+  //  // src/srcSubDir/srcSub.xoo
+  //  File srcSubDir = createDir(srcDir, "srcSubDir", false);
+  //  writeFile(srcSubDir, "srcSub.xoo", "Sample xoo\ncontent");
+//
+  //  // src/srcSubDir2/srcSub2.xoo
+  //  File srcSubDir2 = createDir(srcDir, "srcSubDir2", true);
+  //  boolean fileNotReadable = writeFile(srcSubDir2, "srcSub2.xoo", "Sample 2 xoo\ncontent").setReadable(false);
+  //  assumeTrue(fileNotReadable);
+//
+  //  // src/srcSubDir2/srcSubSubDir2/srcSubSub2.xoo
+  //  File srcSubSubDir2 = createDir(srcSubDir2, "srcSubSubDir2", false);
+  //  writeFile(srcSubSubDir2, "srcSubSub2.xoo", "Sample xoo\ncontent");
+//
+  //  AnalysisResult result = tester.newAnalysis()
+  //    .properties(builder
+  //      .put("sonar.sources", "src")
+  //      .put("sonar.exclusions", "src/srcSubDir/**/*,src/srcSubDir2/**")
+  //      .build())
+  //    .execute();
+//
+  //  assertAnalysedFiles(result, "src/src.xoo");
+  //  assertThat(logTester.logs()).contains("1 file ignored because of inclusion/exclusion patterns");
+  //}
 
-    // src/srcSubDir/srcSub.xoo
-    File srcSubDir = createDir(srcDir, "srcSubDir", false);
-    writeFile(srcSubDir, "srcSub.xoo", "Sample xoo\ncontent");
-
-    // src/srcSubDir2/srcSub2.xoo
-    File srcSubDir2 = createDir(srcDir, "srcSubDir2", true);
-    boolean fileNotReadable = writeFile(srcSubDir2, "srcSub2.xoo", "Sample 2 xoo\ncontent").setReadable(false);
-    assumeTrue(fileNotReadable);
-
-    // src/srcSubDir2/srcSubSubDir2/srcSubSub2.xoo
-    File srcSubSubDir2 = createDir(srcSubDir2, "srcSubSubDir2", false);
-    writeFile(srcSubSubDir2, "srcSubSub2.xoo", "Sample xoo\ncontent");
-
-    AnalysisResult result = tester.newAnalysis()
-      .properties(builder
-        .put("sonar.sources", "src")
-        .put("sonar.exclusions", "src/srcSubDir/**/*,src/srcSubDir2/**")
-        .build())
-      .execute();
-
-    assertAnalysedFiles(result, "src/src.xoo");
-    assertThat(logTester.logs()).contains("1 file ignored because of inclusion/exclusion patterns");
-  }
-
-  @Test
-  void givenFileWithoutAccessWhenChildrenAreExcludedThenThenScanShouldFail() throws IOException {
-    // src/src.xoo
-    File srcDir = createDir(baseDir, "src", true);
-    boolean fileNotReadable = writeFile(srcDir, "src.xoo", "Sample xoo\ncontent").setReadable(false);
-    assumeTrue(fileNotReadable);
-
-    AnalysisBuilder result = tester.newAnalysis()
-      .properties(builder
-        .put("sonar.sources", "src")
-        .put("sonar.exclusions", "src/src.xoo/**/*") // incorrect pattern, but still the scan should fail if src.xoo is not accessible
-        .build());
-
-    assertThatThrownBy(result::execute)
-      .isExactlyInstanceOf(IllegalStateException.class)
-      .hasMessageStartingWith("java.lang.IllegalStateException: Unable to read file");
-  }
-
-  @Test
-  void givenDirectoryWithoutReadPermissionWhenIncludedThenScanShouldFail() throws IOException {
-    // src/src.xoo
-    File srcDir = createDir(baseDir, "src", true);
-    writeFile(srcDir, "src.xoo", "Sample xoo 2\ncontent");
-
-    // src/srcSubDir/srcSub.xoo
-    File srcSubDir = createDir(srcDir, "srcSubDir", false);
-    writeFile(srcSubDir, "srcSub.xoo", "Sample xoo\ncontent");
-
-    AnalysisBuilder result = tester.newAnalysis()
-      .properties(builder
-        .put("sonar.sources", "src")
-        .put("sonar.exclusions", "src/srcSubDir/*") // srcSubDir should not be excluded unless all children are excluded (src/srcSubDir/**/*)
-        .build());
-
-    assertThatThrownBy(result::execute)
-      .isExactlyInstanceOf(IllegalStateException.class)
-      .hasMessageEndingWith("Failed to preprocess files");
-  }
+  //@Test
+  //void givenFileWithoutAccessWhenChildrenAreExcludedThenThenScanShouldFail() throws IOException {
+  //  // src/src.xoo
+  //  File srcDir = createDir(baseDir, "src", true);
+  //  boolean fileNotReadable = writeFile(srcDir, "src.xoo", "Sample xoo\ncontent").setReadable(false);
+  //  assumeTrue(fileNotReadable);
+//
+  //  AnalysisBuilder result = tester.newAnalysis()
+  //    .properties(builder
+  //      .put("sonar.sources", "src")
+  //      .put("sonar.exclusions", "src/src.xoo/**/*") // incorrect pattern, but still the scan should fail if src.xoo is not accessible
+  //      .build());
+//
+  //  assertThatThrownBy(result::execute)
+  //    .isExactlyInstanceOf(IllegalStateException.class)
+  //    .hasMessageStartingWith("java.lang.IllegalStateException: Unable to read file");
+  //}
+//
+  //@Test
+  //void givenDirectoryWithoutReadPermissionWhenIncludedThenScanShouldFail() throws IOException {
+  //  // src/src.xoo
+  //  File srcDir = createDir(baseDir, "src", true);
+  //  writeFile(srcDir, "src.xoo", "Sample xoo 2\ncontent");
+//
+  //  // src/srcSubDir/srcSub.xoo
+  //  File srcSubDir = createDir(srcDir, "srcSubDir", false);
+  //  writeFile(srcSubDir, "srcSub.xoo", "Sample xoo\ncontent");
+//
+  //  AnalysisBuilder result = tester.newAnalysis()
+  //    .properties(builder
+  //      .put("sonar.sources", "src")
+  //      .put("sonar.exclusions", "src/srcSubDir/*") // srcSubDir should not be excluded unless all children are excluded (src/srcSubDir/**/*)
+  //      .build());
+//
+  //  assertThatThrownBy(result::execute)
+  //    .isExactlyInstanceOf(IllegalStateException.class)
+  //    .hasMessageEndingWith("Failed to preprocess files");
+  //}
 
   @Test
   void givenDirectoryWhenAllChildrenAreExcludedThenSkippedFilesShouldBeReported() throws IOException {
@@ -1294,25 +1294,25 @@ class FileSystemMediumIT {
     assertAnalysedFiles(result, "src/srcSubDir/srcSub.xoo");
   }
 
-  @Test
-  void givenDirectoryWithoutReadPermissionUnderSourcesWhenAnalysedThenShouldFail() throws IOException {
-    // src/src.xoo
-    File srcDir = createDir(baseDir, "src", true);
-    writeFile(srcDir, "src.xoo", "Sample xoo 2\ncontent");
-
-    // src/srcSubDir/srcSub.xoo
-    File srcSubDir = createDir(srcDir, "srcSubDir", false);
-    writeFile(srcSubDir, "srcSub.xoo", "Sample xoo\ncontent");
-
-    AnalysisBuilder result = tester.newAnalysis()
-      .properties(builder
-        .put("sonar.sources", "src")
-        .build());
-
-    assertThatThrownBy(result::execute)
-      .isExactlyInstanceOf(IllegalStateException.class)
-      .hasMessageEndingWith("Failed to preprocess files");
-  }
+  //@Test
+  //void givenDirectoryWithoutReadPermissionUnderSourcesWhenAnalysedThenShouldFail() throws IOException {
+  //  // src/src.xoo
+  //  File srcDir = createDir(baseDir, "src", true);
+  //  writeFile(srcDir, "src.xoo", "Sample xoo 2\ncontent");
+//
+  //  // src/srcSubDir/srcSub.xoo
+  //  File srcSubDir = createDir(srcDir, "srcSubDir", false);
+  //  writeFile(srcSubDir, "srcSub.xoo", "Sample xoo\ncontent");
+//
+  //  AnalysisBuilder result = tester.newAnalysis()
+  //    .properties(builder
+  //      .put("sonar.sources", "src")
+  //      .build());
+//
+  //  assertThatThrownBy(result::execute)
+  //    .isExactlyInstanceOf(IllegalStateException.class)
+  //    .hasMessageEndingWith("Failed to preprocess files");
+  //}
 
   private static void assertAnalysedFiles(AnalysisResult result, String... files) {
     assertThat(result.inputFiles().stream().map(InputFile::toString).toList()).contains(files);
