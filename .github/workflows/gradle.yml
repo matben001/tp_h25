@@ -15,32 +15,9 @@ env:
   FETCH_DEPTH: --depth=1
 
 jobs:
-  cache_dependencies:
-    runs-on: ubuntu-latest
-    container:
-      image: docker.io/library/gradle:latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Restore Gradle Cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.gradle/caches
-          key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle*.properties') }}
-      - name: Install Dependencies
-        run: .cirrus/cirrus-cache-dependencies.sh
-      - name: Cleanup Gradle Cache
-        run: |
-          rm -rf ~/.gradle/caches/7.*/
-          rm -rf ~/.gradle/daemon/
-          rm -rf ~/.gradle/caches/transforms-*
-          rm -rf ~/.gradle/caches/journal-*
-          find ~/.gradle/caches/ -name "*.lock" -type f -delete
+
 
   build:
-    needs: cache_dependencies
     runs-on: ubuntu-latest
     container:
       image: docker.io/library/gradle:latest
