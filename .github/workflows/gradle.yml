@@ -30,7 +30,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Build Project
-        run: .cirrus/cirrus-build.sh
+        run: git-build.sh
       - name: Store Build Artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -47,7 +47,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Run JUnit Tests
-        run: .cirrus/cirrus-junit.sh
+        run: git-junit.sh
       - name: Upload JUnit Test Results
         uses: actions/upload-artifact@v4
         with:
