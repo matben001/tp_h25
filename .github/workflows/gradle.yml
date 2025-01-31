@@ -30,7 +30,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Build Project
-        run: ./github/workflows/git-build.sh
+        run: .github/workflows/git-build.sh
       - name: Store Build Artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -47,7 +47,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Run JUnit Tests
-        run: ./github/workflows/git-junit.sh
+        run: .github/workflows/git-junit.sh
       - name: Upload JUnit Test Results
         uses: actions/upload-artifact@v4
         with:
