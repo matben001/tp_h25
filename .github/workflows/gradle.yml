@@ -26,11 +26,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Restore Gradle Cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.gradle/caches
-          key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle*.properties') }}
       - name: Build Project
         run: .cirrus/cirrus-build.sh
       - name: Store Build Artifacts
@@ -48,11 +43,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Restore Gradle Cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.gradle/caches
-          key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle*.properties') }}
       - name: Run JUnit Tests
         run: .cirrus/cirrus-junit.sh
       - name: Upload JUnit Test Results
