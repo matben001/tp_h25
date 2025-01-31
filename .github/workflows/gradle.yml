@@ -81,9 +81,4 @@ jobs:
       - name: Run SonarQube Analysis
         run: bash .travis/travis-sq-analysis.sh
 
-notifications:
-  email:
-    recipients:
-      - mathieu-1.benoit@polymtl.ca
-    on_success: never
-    on_failure: always
+
