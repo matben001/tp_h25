@@ -1,84 +1,107 @@
-name: Java CI
+name: CI
 
 on:
   push:
     branches:
-      - '**'
+      - main
+      - 'branch-*'
   pull_request:
-    branches:
-      - '**'
+  workflow_dispatch:
 
 env:
+  CIRRUS_SHELL: bash
+  CIRRUS_CLONE_DEPTH: 0
   GRADLE_USER_HOME: ${{ github.workspace }}/.gradle
   FETCH_DEPTH: --depth=1
 
 jobs:
-  cache-dependencies:
-    name: "Cache Dependencies"
+  cache_dependencies:
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/branch-')
+    container:
+      image: docker.io/library/gradle:latest
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
-      
-      - name: Set up environment
-        run: mkdir -p $GRADLE_USER_HOME
-      
-      - name: Cache Gradle dependencies
+          fetch-depth: 0
+      - name: Restore Gradle Cache
         uses: actions/cache@v4
         with:
-          path: |
-            ${{ env.GRADLE_USER_HOME }}/caches
-            ${{ env.GRADLE_USER_HOME }}/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            gradle-${{ runner.os }}-
-      
-      - name: Run caching script
-        run: bash .travis/travis-cache-dependencies.sh
+          path: ~/.gradle/caches
+          key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle*.properties') }}
+      - name: Install Dependencies
+        run: .cirrus/cirrus-cache-dependencies.sh
+      - name: Cleanup Gradle Cache
+        run: |
+          rm -rf ~/.gradle/caches/7.*/
+          rm -rf ~/.gradle/daemon/
+          rm -rf ~/.gradle/caches/transforms-*
+          rm -rf ~/.gradle/caches/journal-*
+          find ~/.gradle/caches/ -name "*.lock" -type f -delete
 
   build:
-    name: "Build"
+    needs: cache_dependencies
     runs-on: ubuntu-latest
-    needs: cache-dependencies
+    container:
+      image: docker.io/library/gradle:latest
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
-      
-      - name: Run build script
-        run: bash .travis/travis-build.sh
+          fetch-depth: 0
+      - name: Restore Gradle Cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/caches
+          key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle*.properties') }}
+      - name: Build Project
+        run: .cirrus/cirrus-build.sh
+      - name: Store Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: '**/build/libs/*.jar'
 
   junit:
-    name: "JUnit Tests"
+    needs: cache_dependencies
     runs-on: ubuntu-latest
-    needs: build
+    container:
+      image: docker.io/library/gradle:latest
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
-      
-      - name: Run JUnit tests
-        run: bash .travis/travis-junit.sh
+          fetch-depth: 0
+      - name: Restore Gradle Cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/caches
+          key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle*.properties') }}
+      - name: Run JUnit Tests
+        run: .cirrus/cirrus-junit.sh
+      - name: Upload JUnit Test Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-results
+          path: '**/build/test-results/**/*.xml'
 
-  sonarqube-analysis:
-    name: "SonarQube Analysis"
+  sonar_analysis:
+    needs: [build, junit]
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref != 'refs/heads/public_master'
+    container:
+      image: docker.io/library/gradle:latest
     env:
       SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
-      
+          fetch-depth: 0
+      - name: Restore Gradle Cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/caches
+          key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle*.properties') }}
       - name: Run SonarQube Analysis
-        run: bash .travis/travis-sq-analysis.sh
-
-
+        run: .cirrus/cirrus-sq-analysis.sh
