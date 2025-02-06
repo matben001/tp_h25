@@ -2,5 +2,5 @@
 set -euo pipefail
 
 
-./gradlew jacocoTestReport \
+./gradlew cleanTest test jacocoTestReport \
   --parallel --max-workers=3 --configure-on-demand --console plain -Pqa
