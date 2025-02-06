@@ -36,6 +36,11 @@ jobs:
         with:
           name: build-artifacts
           path: '**/build/libs/*.jar'
+      - name: Store Deploy Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-artifacts
+          path: 'sonar-application/build/distributions/'
   junit:
     runs-on: ubuntu-latest
     container:
@@ -83,7 +88,7 @@ jobs:
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: build-artifacts
+          name: deploy-artifacts
           path: sonar-application/build/distributions/
       - name: List Files Before Extraction
         run: ls -R sonar-application/build/distributions/
