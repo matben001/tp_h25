@@ -80,12 +80,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4
         with:
           name: build-artifacts
           path: sonar-application/build/distributions/
+      - name: List Files Before Extraction
+        run: ls -R sonar-application/build/distributions/
 
       - name: Unzip SonarQube Distribution
         run: unzip sonar-application/build/distributions/*.zip -d sonar-application/build/distributions/
